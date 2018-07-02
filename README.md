@@ -13,10 +13,10 @@ Conceptually, soma-snv combines a permissive variant calling front-end with a sp
 
 * samtools (tested with v1.5)
 * Python 3 (tested with pypy 5.8)
- * intervaltree library https://pypi.python.org/pypi/intervaltree (tested with 2.1.0)
+  * intervaltree library https://pypi.python.org/pypi/intervaltree (tested with 2.1.0)
 * R (tested with 3.4.2)
- * SomaticSignatures library http://bioconductor.org/packages/release/bioc/html/SomaticSignatures.html (tested with 2.14.0)
- * doParallel library (tested with 1.0.11)
+  * SomaticSignatures library http://bioconductor.org/packages/release/bioc/html/SomaticSignatures.html (tested with 2.14.0)
+  * doParallel library (tested with 1.0.11)
 
 Note that the use of pypy is strongly recommended for speed.
 
