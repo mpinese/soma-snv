@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-options(echo = TRUE)
 
 # Define the variant signatures
 signatures = expand.grid(ref_upstream = c("A", "C", "G", "T"), ref = c("C", "T"), ref_downstream = c("A", "C", "G", "T"), alt = c("A", "C", "G", "T"))
@@ -27,9 +26,10 @@ count = matrix(NA, nrow = nrow(signatures), ncol = length(infiles), dimnames = l
 background = matrix(NA, nrow = nrow(signatures), ncol = length(infiles), dimnames = list(signature = signatures$signature, sample = samples))
 
 # Populate matrices
+message("Processing:")
 for (i in 1:length(infiles))
 {
-    message(samples[[i]])
+    message(sprintf("  %s", samples[[i]]))
     i.data = readRDS(infiles[[i]])
     stopifnot(i.data$sample == samples[[i]])
     stopifnot(i.data$sample == colnames(count)[i])
@@ -38,4 +38,5 @@ for (i in 1:length(infiles))
     background[,i] = i.data$background[match(rownames(background), i.data$signature)]
 }
 
-saveRDS(list(count = count, background = background), outfile)
+saveRDS(count / background, outfile)
+message("Done")
