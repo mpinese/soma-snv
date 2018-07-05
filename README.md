@@ -44,9 +44,9 @@ pypy soma-snv.py \
 > sampleID.variants.tsv
 ```
 
-`sampleID.bam` is the input BAM
-`data/blacklist_truseq_nano_hiseqX_hs37d5x.bed` is the path to a bed file of blacklist regions.  The included data/blacklist_truseq_nano_hiseqX_hs37d5x.bed is appropriate for Illumina TruSeq Nano libraries sequenced on the HiSeq X system and mapped to hs37d5 with additional PhiX decoy.
-`sampleID.background.tsv` and `sampleID.variants.tsv` are the output files from this stage.
+sampleID.bam is the input BAM
+data/blacklist_truseq_nano_hiseqX_hs37d5x.bed is the path to a bed file of blacklist regions.  The included data/blacklist_truseq_nano_hiseqX_hs37d5x.bed is appropriate for Illumina TruSeq Nano libraries sequenced on the HiSeq X system and mapped to hs37d5 with additional PhiX decoy.
+sampleID.background.tsv and sampleID.variants.tsv are the output files from this stage.
 
 This stage may be parallelised for speed, in which case add a `-r <region>` flag to each `samtools mpileup` command to define a subset of the genome to examine for somatic variation.  The output IDs must be changed to match (eg `sampleID.variants.tsv` might be changed to `sampleID.shard001.variants.tsv`, likewise for the background file).  These subsets are then combined in step 1b.
 
@@ -66,9 +66,9 @@ For each sample the following script is run to prepare for spectral denoising:
 Rscript soma-snv-norm.R sampleID sampleID.variants.tsv sampleID.background.tsv sampleID.burden.rds
  ```
 
-`sampleID` is the sample identifier
-`sampleID.variants.tsv` and `sampleID.background.tsv` are the output files from step 1.
-`sampleID.burden.rds` is the output from this stage, containing normalised variant class burden estimates.
+sampleID is the sample identifier
+sampleID.variants.tsv and sampleID.background.tsv are the output files from step 1.
+sampleID.burden.rds is the output from this stage, containing normalised variant class burden estimates.
 
 
 ### 3. All samples: cohort merging
@@ -77,8 +77,8 @@ In this step, the per-sample output files from step 2 are merged into a single f
 Rscript soma-snv-merge.R merged.burden.rds sampleID1.burden.rds sampleID2.burden.rds etc...
 ```
 
-`merged.burden.rds` is the merged cohort data file.
-`sampleID1.burden.rds`, `sampleID2.burden.rds`, etc are the normalised variant burden files for each sample from step 2.
+merged.burden.rds is the merged cohort data file.
+sampleID1.burden.rds, sampleID2.burden.rds, etc are the normalised variant burden files for each sample from step 2.
 
 
 ### 4. All samples: spectral denoising
@@ -98,10 +98,10 @@ Or equivalently, in parallel:
 parallel Rscript soma-snv-nmf.R merged.burden.rds <prefix> {} <kmin> <kmax> ::: $(seq <seed_start> <seed_end>)
 ```
 
-`prefix` is a prefix path to be used for the output files of this script.
-`seed` is a PRNG seed for reproducibility
-`kmin` and `kmax` denote bounds for the cardinality search.
-`seed_start` and `seed_end` denote bounds for the random repeats of the fit, see [Fit stability and multiple restarts](#####fit-stability-and-multiple-restarts).
+prefix is a prefix path to be used for the output files of this script.
+seed is a PRNG seed for reproducibility
+kmin and kmax denote bounds for the cardinality search.
+seed_start and seed_end denote bounds for the random repeats of the fit, see [Fit stability and multiple restarts](#fit-stability-and-multiple-restarts).
 
 `soma-snv-nmf.R` produces a file `<prefix>.<seed>.<i>.rds` for every `<i>` in [`<kmin>`, `<kmax>`].
 
@@ -110,7 +110,7 @@ This search space is defined by the parameters `<kmin>` and `<kmax>`.  Suggested
 
 ##### Fit stability and multiple restarts
 
-NMF relies on local optimisation, and often requires multiple random restarts to achieve a good fit.  Too few restarts leads to a high likelihood of poor fit and incorrect results, but too many is wasteful.  The number of restarts is controlled by the `<seed_start>` and `<seed_end>` parameters: seed_end - seed_start + 1 restarts will be used.  The fit achieved by these restarts is plotted by `soma-snv-choosek.R` (see [4b. Cardinality selection](####-4b.-cardinality-selection)), and can be used to evaluate whether sufficient restarts have been used.  A good starting point is seed_end = seed_start + 100.
+NMF relies on local optimisation, and often requires multiple random restarts to achieve a good fit.  Too few restarts leads to a high likelihood of poor fit and incorrect results, but too many is wasteful.  The number of restarts is controlled by the `<seed_start>` and `<seed_end>` parameters: seed_end - seed_start + 1 restarts will be used.  The fit achieved by these restarts is plotted by `soma-snv-choosek.R` (see [4b. Cardinality selection](#4b-cardinality-selection)), and can be used to evaluate whether sufficient restarts have been used.  A good starting point is seed_end = seed_start + 100.
 
 ##### Increasing search speed
 
@@ -135,13 +135,13 @@ The first plot shows the change in explained variance of the burden matrix as a 
 
 ![Selecting the number of restarts](/docs/evar_restarts.png?raw=true "Selecting the number of restarts")
 
-Points (jittered in x) show the explained variance for individual runs of the algorithm with different seeds and k, and the line connects the best fits for each cardinality across all restarts.  A suitably high number of random restarts is indicated if the maximum value of the explained variance for each k appears to be well-sampled: many points are clustered near the maximum value for each k, as seen for example in the left panel.  Conversely, too few restarts are seen in the right panel, where the maximum value for a given k is only supported by one or two points.
+Points (jittered in k) show the explained variance for individual runs of the algorithm with different seeds and k, and the line connects the best fits for each cardinality across all restarts.  A suitably high number of random restarts is indicated if the maximum value of the explained variance for each k appears to be well-sampled: many points are clustered near the maximum value for each k, as seen for example in the left panel.  Conversely, too few restarts are seen in the right panel, where the maximum value for a given k is only supported by one or two points.
 
-Note that if subsetting was performed in 4a (see [Increasing search speed](#####Increasing-search-speed)), more restarts may be required for the full data than is suggested by the subsetted burden results.
+Note that if subsetting was performed in 4a (see [Increasing search speed](#increasing-search-speed)), more restarts may be required for the full data than is suggested by the subsetted burden results.
 
 ##### Selection of k
 
-Assuming sufficient random restarts were used and the global fit is good, the appropriate value of k can be estimated by identifying an inflection point in the optimum explained variance line.  In the example above, this inflection point is at cardinality 3.
+Assuming sufficient random restarts were used and the global fit is good, the appropriate value of k can be estimated by identifying a shoulder in the optimum explained variance line.  In the example above, this point is at cardinality 3.
 
 There is some subjectivity to the selection of k, in which case the additional plots produced by `soma-nmf-choosek.R` can be useful.  The additional plots show the mutational signatures resulting from the fits, one plot per value of k.  Comparison of these spectra with canonical cancer signatures at [COSMIC](https://cancer.sanger.ac.uk/cosmic/signatures) can sometimes help resolve an equivocal explained variance plot.
 
@@ -151,11 +151,11 @@ The convenience script `soma-snv-extractbest.R` can be used to extract the best 
 ```bash
 Rscript soma-snv-extractbest.R <k> <outfile> <infile1> <infile2> ...
 ```
-`<k>` is the selected best `k` from section 4b.
-`<outfile>` is an output `.rds`
-`<infile1>`, etc are input files, as were supplied to `soma-nmf-choosek.R`
+<k> is the selected best `k` from section 4b.
+<outfile> is an output `.rds`
+<infile1>, etc are input files, as were supplied to `soma-nmf-choosek.R`
 
-An example of extracting data from the resultant `<outfile>` is given in [5. Extraction and plotting of results](###-5.extraction-and-plotting-of-results).
+An example of extracting data from the resultant `<outfile>` is given in [5. Extraction and plotting of results](#5-extraction-and-plotting-of-results).
 
 
 ## Example

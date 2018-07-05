@@ -38,5 +38,5 @@ for (i in 1:length(infiles))
     background[,i] = i.data$background[match(rownames(background), i.data$signature)]
 }
 
-saveRDS(count / background, outfile)
+saveRDS(count / background * 1e6, outfile)
 message("Done")

@@ -40,7 +40,7 @@ signatures$signature = sprintf("%s%s %s.%s", signatures$ref, signatures$alt, sig
 signatures$context = paste(signatures$ref_upstream, signatures$ref, signatures$ref_downstream, sep = "")
 signatures$count = unlist(alply(signatures, 1, function(d) sum(variants$context == d$context & variants$alt == d$alt)))
 signatures$background = unlist(alply(signatures, 1, function(d) sum(backgrounds$background[backgrounds$context == d$context])))
-signatures$burden = signatures$count / signatures$background
+signatures$burden = signatures$count / signatures$background * 1e6
 signatures$sample = sample
 signatures = signatures[,c("sample", "context", "alt", "signature", "count", "background", "burden")]
 
